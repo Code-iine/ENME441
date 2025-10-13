@@ -1,13 +1,13 @@
 import RPi.GPIO as GPIO
 import time
 
+GPIO.setmode(GPIO.BCM)
+
 class Shifter:
     def __init__(self,serialPin,latchPin,clockPin):
        self.serialPin = serialPin
        self.latchPin = latchPin
        self.clockPin = clockPin
-
-       GPIO.setmode(GPIO.BCM)
 
        dataPin, latchPin, clockPin = 23, 24, 25
 
