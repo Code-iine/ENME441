@@ -6,13 +6,13 @@ serialPin = 23
 latchPin = 24
 clockPin = 25
 
+Shifter1 = Shifter(serialPin,latchPin,clockPin)
 
 try:
-  Shifter = Shifter(serialPin,latchPin,clockPin)
   print("testing")
   while 1:
     for i in range(2**8):
-        Shifter.shiftByte(i)
+        Shifter1.shiftByte(i)
         time.sleep(0.5)
 except:
   GPIO.cleanup()
