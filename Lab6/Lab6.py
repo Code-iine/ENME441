@@ -18,7 +18,8 @@ try:
 
     step = random.choice(range)
     walk = initial + step
-    Shifter1.shiftByte(walk)
+
+    Shifter1.shiftByte(1<<walk)
     time.sleep(0.5)
 
     if walk > 0 and walk < 8:
