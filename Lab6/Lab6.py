@@ -19,13 +19,13 @@ try:
     step = random.choice(range)
     walk = initial + step
 
-    Shifter1.shiftByte(1<<walk)
-    time.sleep(0.5)
-
     if walk > 0 and walk < 8:
       initial = walk
     else:
       initial = 4
+
+    Shifter1.shiftByte(1<<walk)
+    time.sleep(0.5)
 
   
 
