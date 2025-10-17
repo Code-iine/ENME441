@@ -16,3 +16,7 @@ try:
         time.sleep(0.5)
 except:
   GPIO.cleanup()
+
+finally:
+   Shifter1.shiftByte(0)
+   GPIO.cleanup()
