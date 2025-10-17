@@ -25,6 +25,7 @@ try:
       initial = 4
 
     Shifter1.shiftByte(walk)
+    time.sleep(0.5)
 
 
 
