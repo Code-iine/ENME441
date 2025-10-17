@@ -16,6 +16,9 @@ try:
   initial = 5
   while 1:
     
+    Shifter1.shiftByte(walk)
+    time.sleep(0.5)
+
     step = random.choice(range)
     walk = initial + step
 
@@ -24,11 +27,7 @@ try:
     else:
       initial = 4
 
-    Shifter1.shiftByte(walk)
-    time.sleep(0.5)
-
-
-
+  
 
     '''
     for i in range(108):
