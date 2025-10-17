@@ -6,16 +6,16 @@ import RPi.GPIO as GPIO
 import random
 
 # Define the GPIO pins connected to the shift register
-DATA_PIN = 23
-LATCH_PIN = 24
-CLOCK_PIN = 25
+serialPin = 23
+latchPin = 24
+clockPin = 25
 
 print("Starting random walk LED program...")
 print("Press Ctrl+C to exit.")
 
 # Instantiate the shifter object once before the main loop
 # We place this in a 'finally' block to ensure cleanup happens
-shifter_led = Shifter(dataPin=DATA_PIN, latchPin=LATCH_PIN, clockPin=CLOCK_PIN)
+shifter_led = Shifter(serialPin,latchPin,clockPin)
 
 try:
     # b. Start the LED in the middle of the display (position 4 out of 0-7)
