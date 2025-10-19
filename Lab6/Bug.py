@@ -11,9 +11,9 @@ latchPin = 24
 clockPin = 25
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S1
-GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S2
-GPIO.setup(6, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #s3
+GPIO.setup(2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S1
+GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S2
+GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #s3
 
 
 
@@ -21,7 +21,7 @@ Bug = Bug()
 
 try:
     while True:
-        if True == True:
+        if GPIO.input(2) == 1:
             Bug.start()
         else:
             Bug.Stop()
