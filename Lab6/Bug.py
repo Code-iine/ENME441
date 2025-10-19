@@ -18,7 +18,7 @@ GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #s3
 GPIO.add_event_detect(15, GPIO.BOTH, callback = lambda channel: Bug.flip_state, bouncetime = 100)
 
 
-Shifter = Shifter()
+Shifter = Shifter(serialPin,latchPin,clockPin)
 Bug = Bug()
 speed = Bug.timestep #Original speed
 
