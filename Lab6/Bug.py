@@ -32,5 +32,6 @@ except KeyboardInterrupt: # stop gracefully on ctrl-C
     print('\nExiting')
 
 finally: #Turn off all pins
-   Shifter.shiftByte(0)
+   Bug.stop()
+   #Shifter.shiftByte(0)
    GPIO.cleanup()
