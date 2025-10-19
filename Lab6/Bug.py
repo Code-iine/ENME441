@@ -46,7 +46,7 @@ try:
         else:
             #print("Regular")
             Bug.timestep = speed
-        time.sleep(0.01)
+        #time.sleep(0.01)
 
 except KeyboardInterrupt: # stop gracefully on ctrl-C
     print('\nExiting')
