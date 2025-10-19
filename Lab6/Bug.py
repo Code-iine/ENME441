@@ -21,7 +21,7 @@ Bug = Bug()
 
 try:
     while True:
-        if GPIO.input(2) == 1:
+        if GPIO.input(2) == 0:
             Bug.start()
         else:
             Bug.Stop()
