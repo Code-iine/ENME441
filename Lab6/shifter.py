@@ -48,14 +48,14 @@ class Bug:
             walk = self.x + step
 
             if self.isWrapOn == True:
-                #self.x = walk % 8
+                self.x = walk % 8
 
-                
+                '''
                 if self.x > 8:
                     self.x = 1
                 elif self.x < 0:
                     self.x = 7
-                    
+                    '''
             else:
                 if walk > 0 and walk < 7:
                     self.x = walk
