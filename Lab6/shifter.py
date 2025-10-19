@@ -46,7 +46,7 @@ class Bug:
 
         while self.starter == 1:
 
-            step = random.choice(range)
+            step = random.choice([1, -1])
             walk = self.x + step
 
             if self.isWrapOn == True:
