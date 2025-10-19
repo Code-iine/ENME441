@@ -1,0 +1,32 @@
+from shifter import Shifter
+from shifter import Bug
+import time
+import RPi.GPIO as GPIO
+import random
+
+range = [1, -1]
+
+serialPin = 23
+latchPin = 24
+clockPin = 25
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S1
+GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S2
+GPIO.setup(6, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #s3
+
+
+
+Bug = Bug()
+
+try:
+    while True:
+        if True == True:
+            Bug.start()
+        else:
+            Bug.Stop()
+
+        time.sleep(0.01)
+
+except KeyboardInterrupt: # stop gracefully on ctrl-C
+    print('\nExiting')

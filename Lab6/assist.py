@@ -10,6 +10,7 @@ serialPin = 23
 latchPin = 24
 clockPin = 25
 
+
 print("Starting random walk LED program...")
 print("Press Ctrl+C to exit.")
 

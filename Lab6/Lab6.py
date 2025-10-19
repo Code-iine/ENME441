@@ -25,7 +25,7 @@ try:
       initial = 4
 
     Shifter1.shiftByte(1<<walk)
-    time.sleep(0.05)
+    time.sleep(0.05) #0.05 seconds
 
   
 
