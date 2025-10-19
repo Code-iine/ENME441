@@ -1,8 +1,8 @@
-from shifter import Shifter
-from shifter import Bug
 import time
 import RPi.GPIO as GPIO
 import random
+from shifter import Shifter
+from shifter import Bug
 
 GPIO.setmode(GPIO.BCM)
 range = [1, -1]
