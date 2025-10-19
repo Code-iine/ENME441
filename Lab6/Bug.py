@@ -15,11 +15,12 @@ GPIO.setup(14, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S1
 GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S2
 GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #s3
 
-GPIO.add_event_detect(15, GPIO.BOTH, callback=Bug.flip_state(), bouncetime = 100)
+GPIO.add_event_detect(15, GPIO.BOTH, callback = lambda channel: Bug.flip_state, bouncetime = 100)
 
 
-
+Shifter = Shifter()
 Bug = Bug()
+speed = Bug.timestep #Original speed
 
 try:
     while True:
@@ -31,9 +32,9 @@ try:
             Bug.stop()
         
         if GPIO.input(18) == 1:
-            Bug.timestep / 3
+            Bug.timestep = Bug.timestep / 3
         else:
-            Bug.timestep
+            Bug.timestep = speed
         
 
         
