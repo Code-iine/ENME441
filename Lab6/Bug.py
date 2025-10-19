@@ -24,7 +24,7 @@ try:
         if GPIO.input(2) == 0:
             Bug.start()
         else:
-            Bug.Stop()
+            Bug.stop()
 
         time.sleep(0.01)
 
