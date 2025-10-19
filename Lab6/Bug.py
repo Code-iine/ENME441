@@ -15,19 +15,28 @@ GPIO.setup(14, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S1
 GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S2
 GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #s3
 
+GPIO.add_event_detect(15, GPIO.BOTH, callback=Bug.flip_state, bouncetime = 100)
+
 
 
 Bug = Bug()
 
 try:
     while True:
-        print(GPIO.input(14))
         if GPIO.input(14) == 1:
             Bug.switch_on()
             Bug.start()
         else:
             Bug.switch_off()
             Bug.stop()
+        
+        if GPIO.input(18) == 1:
+            Bug.timestep / 3
+        else:
+            Bug.timestep
+        
+
+        
 
         time.sleep(0.01)
 

@@ -78,6 +78,12 @@ class Bug:
     def switch_off(self):
         self.switch = 0
 
+    def flip_state(self):
+        if self.isWrapOn == False:
+            self.isWrapOn = True
+        else:
+            self.isWrapOn = False
+
 
 
 
