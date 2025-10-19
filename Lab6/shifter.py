@@ -49,6 +49,7 @@ class Bug:
 
             if self.isWrapOn == True:
                 self.x = walk % 8
+
                 '''
                 if self.x > 8:
                     self.x = 1
@@ -83,13 +84,13 @@ class Bug:
 
     def flip_state(self):
         print("flipping")
-        print(self.isWrapOn)
+       #print(self.isWrapOn)
         if self.isWrapOn == False:
             self.isWrapOn = True
-            print(self.isWrapOn)
+            #print(self.isWrapOn)
         else:
             self.isWrapOn = False
-            print(self.isWrapOn)
+            #print(self.isWrapOn)
 
 
 

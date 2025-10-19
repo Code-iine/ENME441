@@ -33,12 +33,14 @@ GPIO.add_event_detect(15, GPIO.RISING, callback = lambda channel: flipBug(), bou
 try:
     while True:
         if GPIO.input(14) == 1:
+            #print("On")
             Bug.switch_on()
             Bug.start()
             #print(GPIO.input(15))
         else:
             Bug.switch_off()
             Bug.stop()
+            #print("Off")
         
         if GPIO.input(18) == 1:
             #print("fast")
