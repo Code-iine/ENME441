@@ -23,8 +23,10 @@ try:
     while True:
         print(GPIO.input(14))
         if GPIO.input(14) == 1:
+            Bug.switch_on()
             Bug.start()
         else:
+            Bug.switch_off()
             Bug.stop()
 
         time.sleep(0.01)

@@ -33,6 +33,7 @@ class Shifter:
 class Bug:
     range = [1, -1]
     starter = 0
+    switch = 0
 
     def __init__(self,timestep = 0.1,x = 3,isWrapOn = False,):
         self.timestep = timestep
@@ -42,10 +43,7 @@ class Bug:
 
 
     def start(self):
-        self.starter = 1
-
-        while self.starter == 1:
-
+        if self.switch == 1:
             step = random.choice([1, -1])
             walk = self.x + step
 
@@ -68,11 +66,20 @@ class Bug:
                 Shifter1.shiftByte(i)
                 time.sleep(0.5)
                 '''
+        else:
+            return
             
     def stop(self):
         self.starter = 0
         self.__shifter.shiftByte(0)
         #GPIO.cleanup()
+    
+    def switch_on(self):
+        self.switch = 1
+
+    def switch_off(self):
+        self.switch = 0
+
 
 
 
