@@ -34,7 +34,7 @@ class Bug:
     range = [1, -1]
     starter = 0
 
-    def __init__(self,timestep = 0.1,x = 3,isWrapOn = False,__shifter):
+    def __init__(self,timestep = 0.1,x = 3,isWrapOn = False,):
         self.timestep = timestep
         self.x = x
         self.isWrapOn = isWrapOn
