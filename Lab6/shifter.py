@@ -79,6 +79,7 @@ class Bug:
         self.switch = 0
 
     def flip_state(self):
+        print("flipping states")
         if self.isWrapOn == False:
             self.isWrapOn = True
         else:

@@ -32,8 +32,10 @@ try:
             Bug.stop()
         
         if GPIO.input(18) == 1:
+            print("fast")
             Bug.timestep = Bug.timestep / 3
         else:
+            print("Regular")
             Bug.timestep = speed
         
 
