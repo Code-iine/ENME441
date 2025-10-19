@@ -80,10 +80,13 @@ class Bug:
 
     def flip_state(self):
         print("flipping")
+        print(self.isWrapOn)
         if self.isWrapOn == False:
             self.isWrapOn = True
+            print(self.isWrapOn)
         else:
             self.isWrapOn = False
+            print(self.isWrapOn)
 
 
 
