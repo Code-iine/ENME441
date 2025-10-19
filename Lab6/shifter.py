@@ -52,8 +52,6 @@ class Bug:
                     self.x = 1
                 elif self.x < 0:
                     self.x = 8
-                else:
-                    continue
             else:
                 if walk > 0 and walk < 8:
                     self.x = walk
