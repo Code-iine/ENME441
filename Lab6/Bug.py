@@ -27,15 +27,16 @@ try:
         if GPIO.input(14) == 1:
             Bug.switch_on()
             Bug.start()
+            print(GPIO.input(15))
         else:
             Bug.switch_off()
             Bug.stop()
         
         if GPIO.input(18) == 1:
-            print("fast")
+            #print("fast")
             Bug.timestep = Bug.timestep / 3
         else:
-            print("Regular")
+            #print("Regular")
             Bug.timestep = speed
         
 
