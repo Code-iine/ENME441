@@ -21,6 +21,7 @@ Bug = Bug()
 
 try:
     while True:
+        print(GPIO.input(14))
         if GPIO.input(14) == 1:
             Bug.start()
         else:
