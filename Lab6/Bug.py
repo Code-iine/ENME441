@@ -11,9 +11,9 @@ serialPin = 23
 latchPin = 24
 clockPin = 25
 
-GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S1
-GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S2
-GPIO.setup(4, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #s3
+GPIO.setup(14, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S1
+GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #S2
+GPIO.setup(18, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #s3
 
 
 
@@ -21,7 +21,7 @@ Bug = Bug()
 
 try:
     while True:
-        if GPIO.input(17) == 1:
+        if GPIO.input(14) == 1:
             Bug.start()
         else:
             Bug.stop()
