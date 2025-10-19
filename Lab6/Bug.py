@@ -28,7 +28,7 @@ def flipBug():
 
 
 #GPIO.add_event_detect(15, GPIO.BOTH, callback = flipBug, bouncetime = 100)
-GPIO.add_event_detect(15, GPIO.BOTH, callback = lambda channel: flipBug(), bouncetime = 100)
+GPIO.add_event_detect(15, GPIO.RISING, callback = lambda channel: flipBug(), bouncetime = 100)
 
 try:
     while True:
