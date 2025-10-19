@@ -21,7 +21,7 @@ Bug = Bug()
 
 try:
     while True:
-        if GPIO.input(2) == 1:
+        if GPIO.input(2):
             Bug.start()
         else:
             Bug.stop()
@@ -30,3 +30,7 @@ try:
 
 except KeyboardInterrupt: # stop gracefully on ctrl-C
     print('\nExiting')
+
+finally: #Turn off all pins
+   Shifter.shiftByte(0)
+   GPIO.cleanup()
