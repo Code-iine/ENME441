@@ -34,12 +34,14 @@ class Bug:
     range = [1, -1]
     starter = 0
     switch = 0
+    on = True
 
     def __init__(self,timestep = 0.1,x = 3,isWrapOn = False,):
         self.timestep = timestep
         self.x = x
         self.isWrapOn = isWrapOn
         self.__shifter = Shifter(serialPin,latchPin,clockPin)
+
 
 
     def start(self):
@@ -54,7 +56,7 @@ class Bug:
                 if self.x > 8:
                     self.x = 1
                 elif self.x < 0:
-                    self.x = 7
+                    self.x = 8
                     '''
             else:
                 if walk > 0 and walk < 7:
