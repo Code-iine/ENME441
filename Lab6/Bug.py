@@ -8,7 +8,7 @@ from shifter import Bug
 
 
 GPIO.setmode(GPIO.BCM)
-range = [1, -1]
+range = [1, -1] #not sure if this is necessary
 
 serialPin = 23
 latchPin = 24
