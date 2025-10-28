@@ -22,7 +22,6 @@ pwm1 = GPIO.PWM(led1, 100)
 pwm2 = GPIO.PWM(led2, 100)   
 pwm3 = GPIO.PWM(led3, 100)   
 
-for p in pins: GPIO.setup(p, GPIO.IN) 
 
 def parsePOSTdata(data):
     data_dict = {}
@@ -37,7 +36,6 @@ def parsePOSTdata(data):
 
 # Generate HTML for the web page:
 def web_page():
-    rows = [f'<tr><td>{str(p)}</td><td>{GPIO.input(p)}</td></tr>' for p in pins]
     html = """
                 <html>
         <head>
