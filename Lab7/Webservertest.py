@@ -74,7 +74,7 @@ def serve_web_page():
         conn, (client_ip, client_port) = s.accept()     # blocking call
         print(f'Connection from {client_ip}')   
         
-        data = parsePOSTdata(conn.recv[1024])
+        data = parsePOSTdata(conn.recv(1024))
         led_select = data['LED']
         submit = data['submit']
         changeBright = data['slider1']
