@@ -1,0 +1,18 @@
+<html>
+<head>
+    <title>GPIO Pins</title>
+</head>
+<body>
+    <h1>Pin States</h1>
+    <h4>Brightness Level:</h4>
+    <form action="/cgi-bin/range.py" method="POST">
+        <input type="range" name="slider1" min="0" max="1000" value="500" /><br>
+        <form action="/cgi-bin/radio.py" method="POST">
+            <p>Select LED:</p>
+            <input type="radio" name="LED" value="1" checked> LED 1 <br>
+            <input type="radio" name="LED" value="2"> LED 2 <br>
+            <input type="radio" name="LED" value="3"> LED 3 <br>
+            <button name="Change Brightness" value="b1"> Change Brightness </button>
+        </form>
+</body>
+</html>
