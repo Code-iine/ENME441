@@ -89,7 +89,7 @@ def serve_web_page():
         
                 if submit == "b1":
                     print("submitted")
-                    if led_select == 1:
+                    if led_select == "1":
                         pwm1.ChangeDutyCycle(bright)
                         print("led1")
                     elif led_select == 2:
