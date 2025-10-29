@@ -20,7 +20,11 @@ GPIO.setup(led2, GPIO.OUT)
 GPIO.setup(led3, GPIO.OUT)
 pwm1 = GPIO.PWM(led1, 100)   
 pwm2 = GPIO.PWM(led2, 100)   
-pwm3 = GPIO.PWM(led3, 100)   
+pwm3 = GPIO.PWM(led3, 100)
+
+Led1 = 0
+led2 = 0
+Led3 = 0
 
 
 def parsePOSTdata(data):
@@ -35,7 +39,7 @@ def parsePOSTdata(data):
     return data_dict
 
 # Generate HTML for the web page:
-def web_page():
+def web_page(led1, led2, led3):
     html = """
                 <html>
         <head>
@@ -47,9 +51,9 @@ def web_page():
             <h4>Brightness Level:</h4>
                 <input type="range" name="slider1" min="0" max="100" value="0" /><br>
                     <p>Select LED:</p>
-                    <input type="radio" name="LED" value="1">LED 1<br>
-                    <input type="radio" name="LED" value="2">LED 2<br>
-                    <input type="radio" name="LED" value="3">LED 3<br>
+                    <input type="radio" name="LED" value="1">LED 1 ({led1}%)<br>
+                    <input type="radio" name="LED" value="2">LED 2 ({led2}%)<br>
+                    <input type="radio" name="LED" value="3">LED 3 ({led3}%)<br>
                     <button name="submit" value="b1"> Change Brightness </button>
                 </form>
         </body>
@@ -73,8 +77,8 @@ def serve_web_page():
         conn, (client_ip, client_port) = s.accept()     # blocking call
         print(f'Connection from {client_ip}')
         
-        raw_data = conn.recv(1024)              # This is a 'bytes' object
-        decoded_data = raw_data.decode('utf-8') # Now it's a 'str'
+        raw_data = conn.recv(1024)              
+        decoded_data = raw_data.decode('utf-8') 
         data = parsePOSTdata(decoded_data)
         
         #data = parsePOSTdata(conn.recv(1024))
@@ -91,16 +95,19 @@ def serve_web_page():
                     print("submitted")
                     if led_select == "1":
                         pwm1.ChangeDutyCycle(bright)
+                        led1 = bright
                         print("led1")
-                    elif led_select == 2:
+                    elif led_select == "2":
                         pwm2.ChangeDutyCycle(bright)
-                    elif led_select == 3:
+                        led2 = bright
+                    elif led_select == "3":
                         pwm3.ChangeDutyCycle(bright)
+                        led3 = bright
         
         conn.send(b'HTTP/1.0 200 OK\n')         # status line 
         conn.send(b'Content-type: text/html\n') # header (content type)
         conn.send(b'Connection: close\r\n\r\n') # header (tell client to close at end)
-        conn.sendall(web_page())                # body
+        conn.sendall(web_page(led1,led2,led3))                # body
         conn.close()
 
 serve_web_page()
