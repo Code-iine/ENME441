@@ -22,9 +22,6 @@ pwm1 = GPIO.PWM(led1, 100)
 pwm2 = GPIO.PWM(led2, 100)   
 pwm3 = GPIO.PWM(led3, 100)
 
-ledBright1 = 0
-ledBright2 = 0
-ledBright3 = 0
 
 
 def parsePOSTdata(data):
@@ -69,6 +66,11 @@ def serve_web_page():
     pwm1.start(0) 
     pwm2.start(0) 
     pwm3.start(0) 
+    
+    ledBright1 = 0
+    ledBright2 = 0
+    ledBright3 = 0
+
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # TCP-IP socket
     s.bind(('', 80))
     s.listen(3)  # up to 3 queued connections
