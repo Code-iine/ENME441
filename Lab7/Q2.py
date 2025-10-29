@@ -202,20 +202,19 @@ def web_page(ledin1, ledin2, ledin3):
          * This happens asynchronously and does not reload the page.
          */
         async function sendBrightnessUpdate(ledNumber, brightnessValue) {{
-            // Create a FormData object to mimic the original form submission
-            const formData = new FormData();
-            
-            // We use the *exact* names from your original form:
-            // 'LED' for the LED number
-            // 'slider1' for the brightness value
-            formData.append('LED', ledNumber);
-            formData.append('slider1', brightnessValue); 
+            // Format the data as 'application/x-www-form-urlencoded'
+            // This matches what a standard HTML form sends, and what
+            // your parsePOSTdata function expects.
+            const bodyData = `LED=${{encodeURIComponent(ledNumber)}}&slider1=${{encodeURIComponent(brightnessValue)}}`;
 
             try {{
-                // Send the POST request to your server-side script
-                const response = await fetch('/cgi-bin/range.py', {{
+                // Send the POST request back to the same server URL that served this page
+                const response = await fetch('', {{
                     method: 'POST',
-                    body: formData
+                    body: bodyData,
+                    headers: {{
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }}
                 }});
                 
                 // Optional: Check if the server responded successfully
@@ -236,7 +235,6 @@ def web_page(ledin1, ledin2, ledin3):
 </body>
 </html>
 """
-    print(html)
     return (bytes(html,'utf-8'))   # convert html string to UTF-8 bytes object
 
 
@@ -250,46 +248,86 @@ def serve_web_page():
     ledBright1 = 0
     ledBright2 = 0
     ledBright3 = 0
-
+    
+    conn = None # Initialize conn to None
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # TCP-IP socket
     s.bind(('', 80))
     s.listen(3)  # up to 3 queued connections
+    
     while True:
-        print('Waiting for connection...')
-        conn, (client_ip, client_port) = s.accept()     # blocking call
-        print(f'Connection from {client_ip}')
-        
-        raw_data = conn.recv(1024)              
-        decoded_data = raw_data.decode('utf-8') 
-        data = parsePOSTdata(decoded_data)
-        
-        #data = parsePOSTdata(conn.recv(1024))
-        
-        
-        if decoded_data.startswith('POST'): #post checker
-                data = parsePOSTdata(decoded_data)
-                led_select = data.get('LED')
-                submit = data.get('submit')
-                changeBright = data.get('slider1')
-                bright = int(changeBright)
-        
-                if submit == "b1":
-                    print("submitted")
-                    if led_select == "1":
-                        pwm1.ChangeDutyCycle(bright)
-                        ledBright1 = bright
-                        print("led1")
-                    elif led_select == "2":
-                        pwm2.ChangeDutyCycle(bright)
-                        ledBright2 = bright
-                    elif led_select == "3":
-                        pwm3.ChangeDutyCycle(bright)
-                        ledBright3 = bright
-        
-        conn.send(b'HTTP/1.0 200 OK\n')         # status line 
-        conn.send(b'Content-type: text/html\n') # header (content type)
-        conn.send(b'Connection: close\r\n\r\n') # header (tell client to close at end)
-        conn.sendall(web_page(ledBright1,ledBright2,ledBright3))                # body
-        conn.close()
+        try:
+            print('Waiting for connection...')
+            conn, (client_ip, client_port) = s.accept()     # blocking call
+            print(f'Connection from {client_ip}')
+            
+            raw_data = conn.recv(1024)              
+            decoded_data = raw_data.decode('utf-8') 
+            
+            # Check if it's a POST request and handle data
+            if decoded_data.startswith('POST'):
+                    data = parsePOSTdata(decoded_data)
+                    led_select = data.get('LED')
+                    changeBright = data.get('slider1')
+                    
+                    # --- FIX ---
+                    # We must check if BOTH keys were found and are not None.
+                    # The error 'int() argument... not 'NoneType'' happens when
+                    # 'changeBright' is None, meaning 'slider1' was missing
+                    # from the POST request. This 'if' statement prevents
+                    # the code from running if *either* value is missing.
+                    if led_select and changeBright is not None:
+                        try:
+                            bright = int(changeBright)
+                            if bright < 0: bright = 0
+                            if bright > 100: bright = 100
+                            
+                            print(f"POST received: LED={led_select}, Brightness={bright}")
+
+                            if led_select == "1":
+                                pwm1.ChangeDutyCycle(bright)
+                                ledBright1 = bright # Update the persistent value
+                                print("Updated LED 1")
+                            elif led_select == "2":
+                                pwm2.ChangeDutyCycle(bright)
+                                ledBright2 = bright # Update the persistent value
+                                print("Updated LED 2")
+                            elif led_select == "3":
+                                pwm3.ChangeDutyCycle(bright)
+                                ledBright3 = bright # Update the persistent value
+                                print("Updated LED 3")
+                        
+                        except ValueError:
+                            # Added quotes around 'changeBright' for clearer logging
+                            print(f"Invalid brightness value received: '{changeBright}'")
+                        except Exception as e:
+                            print(f"Error processing POST data: {e}")
+            
+            # For ALL requests (GET or POST), send the web page
+            conn.send(b'HTTP/1.0 200 OK\n')         # status line 
+            conn.send(b'Content-type: text/html\n') # header (content type)
+            conn.send(b'Connection: close\r\n\r\n') # header (tell client to close at end)
+            conn.sendall(web_page(ledBright1,ledBright2,ledBright3))                # body
+            conn.close()
+            conn = None # Reset conn after closing
+
+        except KeyboardInterrupt:
+            print("\nShutting down server...")
+            break # Exit the while loop
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            if conn:
+                conn.close()
+                conn = None # Reset conn after closing
+
+    # Cleanup code runs after loop exits
+    print("Stopping PWM and cleaning up GPIO...")
+    pwm1.stop()
+    pwm2.stop()
+    pwm3.stop()
+    GPIO.cleanup()
+    s.close()
+    print("Server shut down. GPIO cleaned up.")
+
 
 serve_web_page()
+
