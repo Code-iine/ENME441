@@ -79,9 +79,9 @@ def serve_web_page():
         data = parsePOSTdata(decoded_data)
         
         #data = parsePOSTdata(conn.recv(1024))
-        led_select = data['LED']
-        submit = data['submit']
-        changeBright = data['slider1']
+        led_select = data.get['LED']
+        submit = data.get['submit']
+        changeBright = data.get['slider1']
         
         if submit == "b1":
             if led_select == 1:
