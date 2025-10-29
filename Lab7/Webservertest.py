@@ -48,7 +48,7 @@ def web_page(ledin1, ledin2, lendin3):
             <h4>Brightness Level:</h4>
                 <input type="range" name="slider1" min="0" max="100" value="0" /><br>
                     <p>Select LED:</p>
-                    <input type="radio" name="LED" value="1">LED 1 ({ledin1}%)<br>
+                    <input type="radio" name="LED" value="1">LED 1 """+{ledin1}+"""<br>
                     <input type="radio" name="LED" value="2">LED 2 ({ledin2}%)<br>
                     <input type="radio" name="LED" value="3">LED 3 ({ledin3}%)<br>
                     <button name="submit" value="b1"> Change Brightness </button>
