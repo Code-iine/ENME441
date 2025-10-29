@@ -43,10 +43,9 @@ def web_page():
         </head>
         <body>
             <h1>Pin States</h1>
-            <h4>Brightness Level:</h4>
             <form action="/cgi-bin/range.py" method="POST">
+            <h4>Brightness Level:</h4>
                 <input type="range" name="slider1" min="0" max="100" value="0" /><br>
-                <form action="/cgi-bin/radio.py" method="POST">
                     <p>Select LED:</p>
                     <input type="radio" name="LED" value="1">LED 1<br>
                     <input type="radio" name="LED" value="2">LED 2<br>
