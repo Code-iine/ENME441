@@ -85,14 +85,15 @@ def serve_web_page():
                 led_select = data.get('LED')
                 submit = data.get('submit')
                 changeBright = data.get('slider1')
+                bright = int(changeBright)
         
                 if submit == "b1":
                     if led_select == 1:
-                        pwm1.ChangeDutyCycle(changeBright)
+                        pwm1.ChangeDutyCycle(bright)
                     elif led_select == 2:
-                        pwm2.ChangeDutyCycle(changeBright)
+                        pwm2.ChangeDutyCycle(bright)
                     elif led_select == 3:
-                        pwm3.ChangeDutyCycle(changeBright)
+                        pwm3.ChangeDutyCycle(bright)
         
         conn.send(b'HTTP/1.0 200 OK\n')         # status line 
         conn.send(b'Content-type: text/html\n') # header (content type)
