@@ -72,9 +72,13 @@ def serve_web_page():
     while True:
         print('Waiting for connection...')
         conn, (client_ip, client_port) = s.accept()     # blocking call
-        print(f'Connection from {client_ip}')   
+        print(f'Connection from {client_ip}')
         
-        data = parsePOSTdata(conn.recv(1024))
+        raw_data = conn.recv(1024)              # This is a 'bytes' object
+        decoded_data = raw_data.decode('utf-8') # Now it's a 'str'
+        data = parsePOSTdata(decoded_data)
+        
+        #data = parsePOSTdata(conn.recv(1024))
         led_select = data['LED']
         submit = data['submit']
         changeBright = data['slider1']
