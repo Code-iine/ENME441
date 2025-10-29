@@ -76,20 +76,24 @@ def serve_web_page():
         
         raw_data = conn.recv(1024)              # This is a 'bytes' object
         decoded_data = raw_data.decode('utf-8') # Now it's a 'str'
-        #data = parsePOSTdata(decoded_data)
+        data = parsePOSTdata(decoded_data)
         
         #data = parsePOSTdata(conn.recv(1024))
-        #led_select = data['LED']
-        #submit = data['submit']
-        #changeBright = data['slider1']
         
-        if submit == "b1":
-            if led_select == 1:
-                pwm1.ChangeDutyCycle(changeBright)
-            elif led_select == 2:
-                pwm2.ChangeDutyCycle(changeBright)
-            elif led_select == 3:
-                pwm3.ChangeDutyCycle(changeBright)
+        
+        if decoded_data.startswith('POST'): #post checker
+                data = parsePOSTdata(decoded_data)
+                led_select = data['LED']
+                submit = data['submit']
+                changeBright = data['slider1']
+        
+                if submit == "b1":
+                    if led_select == 1:
+                        pwm1.ChangeDutyCycle(changeBright)
+                    elif led_select == 2:
+                        pwm2.ChangeDutyCycle(changeBright)
+                    elif led_select == 3:
+                        pwm3.ChangeDutyCycle(changeBright)
         
         conn.send(b'HTTP/1.0 200 OK\n')         # status line 
         conn.send(b'Content-type: text/html\n') # header (content type)
