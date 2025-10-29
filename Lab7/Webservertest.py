@@ -88,8 +88,10 @@ def serve_web_page():
                 bright = int(changeBright)
         
                 if submit == "b1":
+                    print("submitted")
                     if led_select == 1:
                         pwm1.ChangeDutyCycle(bright)
+                        print("led1")
                     elif led_select == 2:
                         pwm2.ChangeDutyCycle(bright)
                     elif led_select == 3:
