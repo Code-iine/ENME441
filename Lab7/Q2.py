@@ -7,7 +7,7 @@
 #
 # Must run as sudo to access port 80
 
-#Q1 of Lab 7
+#Q2 of Lab 7
 
 import socket
 import RPi.GPIO as GPIO
