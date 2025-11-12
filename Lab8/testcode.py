@@ -1,113 +1,141 @@
-# Shift register class (Edited for simultaneous operation)
-
-from RPi import GPIO
-from time import sleep
-
-GPIO.setmode(GPIO.BCM)
-
-class Shifter():
-
-    def __init__(self, data, clock, latch, num_bits=8):
-        """
-        Initialize the Shifter.
-        
-        - data, clock, latch: The BCM pin numbers.
-        - num_bits: The total number of bits in your shift register chain
-                    (e.g., 16 for two 8-bit registers).
-        """
-        self.dataPin = data
-        self.latchPin = latch
-        self.clockPin = clock
-        self.num_bits = num_bits
-        
-        # This is the new internal state variable.
-        # It holds the state of all bits in the chain.
-        self.state = 0
-
-        GPIO.setup(self.dataPin, GPIO.OUT)
-        GPIO.setup(self.latchPin, GPIO.OUT)
-        GPIO.setup(self.clockPin, GPIO.OUT)
-        
-        self.update() # Initialize registers to all-low
-
-    def ping(self, p):  # ping the clock or latch pin
-        GPIO.output(p, 1)
-        sleep(0) # This pause is extremely short, almost zero.
-        GPIO.output(p, 0)
-
-    # NEW METHOD: set_bits
-    # This is what your motor's __step() method should call.
-    # It updates the internal state *without* sending to hardware.
-    def set_bits(self, mask, value):
-        """
-        Updates a portion of the internal state. This does NOT
-        send the data to the hardware yet.
-        
-        - mask: An integer with 1s for the bits this call "owns".
-                (e.g., 0b00001111 for motor 1)
-        - value: The new value for those bits (e.g., 0b00001010)
-        """
-        # Clear the bits defined by the mask
-        self.state &= ~mask
-        # Set the new bits from the value, ensuring we only use the mask
-        self.state |= (value & mask)
-
-    # NEW METHOD: update
-    # This is what your main loop should call once per cycle.
-    # It sends the *entire* combined state to the hardware.
-    def update(self):
-        """
-        Shifts the *entire* current 'self.state' out to the
-        shift registers and latches it.
-        """
-        # We shift LSB-first, matching the original code's logic
-        for i in range(self.num_bits):
-            # Check the i-th bit of self.state and set the data pin
-            GPIO.output(self.dataPin, self.state & (1 << i))
-            self.ping(self.clockPin)
-        
-        # Once all bits are shifted, latch them to the outputs
-        self.ping(self.latchPin)
-
-    #
-    # The original 'shiftWord' and 'shiftByte' methods
-    # have been removed as they are incompatible with
-    # simultaneous, stateful control.
-    #
-
-# ---
-# Example of how to use the new class:
-# ---
-# (This is a conceptual example, not part of the class)
+# stepper_class_shiftregister_multiprocessing.py
 #
-# # Assume a 16-bit chain for two 4-bit motors (or one 8-bit)
-# s = Shifter(data=16, clock=20, latch=21, num_bits=16)
+# Stepper class
 #
-# # Motor 1 (m1) controls the first 4 bits (LSBs)
-# m1_mask = 0b0000000000001111
-# m1_step_pattern = 0b0000000000001010 # e.g., A-B coils high
-#
-# # Motor 2 (m2) controls the next 4 bits
-# m2_mask = 0b0000000011110000
-# m2_step_pattern = 0b0000000001010000 # e.g., B-C coils high
-#
-# # In your __step() methods (or main loop):
-# # m1.__step() would call:
-# s.set_bits(m1_mask, m1_step_pattern)
-#
-# # m2.__step() would call:
-# s.set_bits(m2_mask, m2_step_pattern)
-#
-# # At the end of your main loop (after all motors have "stepped"):
-# s.update()
-#
-# # This s.update() call sends the combined state (0b0000000001011010)
-# # to the hardware *at the same time*, moving both motors.
-# ---
+# Because only one motor action is allowed at a time, multithreading could be
+# used instead of multiprocessing. However, the GIL makes the motor process run 
+# too slowly on the Pi Zero, so multiprocessing is needed.
 
-# (Original GPIO cleanup example - useful)
-# try:
-#     # ... your main loop ...
-#     pass
-# except KeyboardInterrupt:
-#     GPIO.cleanup()
+import time
+import multiprocessing
+from shifter import Shifter   # our custom Shifter class
+
+class Stepper:
+    """
+    Supports operation of an arbitrary number of stepper motors using
+    one or more shift registers.
+  
+    A class attribute (shifter_outputs) keeps track of all
+    shift register output values for all motors.  In addition to
+    simplifying sequential control of multiple motors, this schema also
+    makes simultaneous operation of multiple motors possible.
+   
+    Motor instantiation sequence is inverted from the shift register outputs.
+    For example, in the case of 2 motors, the 2nd motor must be connected
+    with the first set of shift register outputs (Qa-Qd), and the 1st motor
+    with the second set of outputs (Qe-Qh). This is because the MSB of
+    the register is associated with Qa, and the LSB with Qh (look at the code
+    to see why this makes sense).
+ 
+    An instance attribute (shifter_bit_start) tracks the bit position
+    in the shift register where the 4 control bits for each motor
+    begin.
+    """
+
+    # Class attributes:
+    num_steppers = 0      # track number of Steppers instantiated
+    shifter_outputs = 0   # track shift register outputs for all motors
+    seq = [0b0001,0b0011,0b0010,0b0110,0b0100,0b1100,0b1000,0b1001] # CCW sequence
+    delay = 1200          # delay between motor steps [us]
+    steps_per_degree = 4096/360    # 4096 steps/rev * 1/360 rev/deg
+
+    def __init__(self, shifter, lock):
+        self.s = shifter           # shift register
+        self.angle = 0             # current output shaft angle
+        self.step_state = 0        # track position in sequence
+        self.shifter_bit_start = 4*Stepper.num_steppers  # starting bit position
+        self.lock = lock           # multiprocessing lock
+
+        Stepper.num_steppers += 1   # increment the instance count
+
+    # Signum function:
+    def __sgn(self, x):
+        if x == 0: return(0)
+        else: return(int(abs(x)/x))
+    
+    def __step(self, dir):
+        self.step_state += dir
+        self.step_state %= 8
+
+        # Each motor controls 4 bits in the shared shift register
+        mask = 0b1111 << self.shifter_bit_start
+
+        # Clear this motor's bits only
+        Stepper.shifter_outputs &= ~mask
+
+        # Set this motor's bits to the current step pattern
+        Stepper.shifter_outputs |= Stepper.seq[self.step_state] << self.shifter_bit_start
+
+        # Send the combined output for all motors
+        self.s.shiftByte(Stepper.shifter_outputs)
+
+        self.angle += dir / Stepper.steps_per_degree
+        self.angle %= 360
+
+
+    # Move relative angle from current position:
+    def __rotate(self, delta):
+        self.lock.acquire()                 # wait until the lock is available
+        numSteps = int(Stepper.steps_per_degree * abs(delta))    # find the right # of steps
+        dir = self.__sgn(delta)        # find the direction (+/-1)
+        for s in range(numSteps):      # take the steps
+            self.__step(dir)
+            time.sleep(Stepper.delay/1e6)
+        self.lock.release()
+
+    # Move relative angle from current position:
+    def rotate(self, delta):
+        time.sleep(0.1)
+        p = multiprocessing.Process(target=self.__rotate, args=(delta,))
+        p.start()
+
+    # Move to an absolute angle taking the shortest possible path:
+    def goAngle(self, angle):
+         pass
+         # COMPLETE THIS METHOD FOR LAB 8
+
+    # Set the motor zero point
+    def zero(self):
+        self.angle = 0
+
+
+# Example use:
+
+if __name__ == '__main__':
+
+    s = Shifter(data=16,latch=20,clock=21)   # set up Shifter
+
+    # Use multiprocessing.Lock() to prevent motors from trying to 
+    # execute multiple operations at the same time:
+    lock = multiprocessing.Lock()
+
+    # Instantiate 2 Steppers:
+    m1 = Stepper(s, lock)
+    m2 = Stepper(s, lock)
+
+    # Zero the motors:
+    m1.zero()
+    m2.zero()
+
+    # Move as desired, with eacg step occuring as soon as the previous 
+    # step ends:
+    m1.rotate(-90)
+    m1.rotate(45)
+    m1.rotate(-90)
+    m1.rotate(45)
+
+    # If separate multiprocessing.lock objects are used, the second motor
+    # will run in parallel with the first motor:
+    m2.rotate(180)
+    m2.rotate(-45)
+    m2.rotate(45)
+    m2.rotate(-90)
+ 
+    # While the motors are running in their separate processes, the main
+    # code can continue doing its thing: 
+    try:
+        while True:
+            pass
+    except:
+        print('\nend')
+
