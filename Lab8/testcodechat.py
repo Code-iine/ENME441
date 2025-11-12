@@ -66,7 +66,7 @@ class Stepper:
             self.s.shiftByte(cur)  # send to shift register
 
         self.angle = (self.angle + direction / Stepper.steps_per_degree) % 360
-        time.sleep(Stepper.delay / 1e4)
+        time.sleep(Stepper.delay / 1e5)
 
     def __rotate(self, delta):
         direction = self.__sgn(delta)
