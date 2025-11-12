@@ -1,3 +1,11 @@
+# stepper_class_shiftregister_multiprocessing.py
+#
+# Stepper class
+#
+# Because only one motor action is allowed at a time, multithreading could be
+# used instead of multiprocessing. However, the GIL makes the motor process run 
+# too slowly on the Pi Zero, so multiprocessing is needed.
+
 import time
 import multiprocessing
 from shifter import Shifter   # our custom Shifter class
@@ -27,8 +35,7 @@ class Stepper:
     # Class attributes:
     num_steppers = 0                # track number of Steppers instantiated
     shifter_outputs = multiprocessing.Value('I', 0)  # track shift register outputs for all motors
-    seq = [0b0001, 0b0011, 0b0010, 0b0110,
-           0b0100, 0b1100, 0b1000, 0b1001]  # CCW sequence
+    seq = [0b0001, 0b0011, 0b0010, 0b0110,0b0100, 0b1100, 0b1000, 0b1001]  # CCW sequence
     delay = 1200  # delay between motor steps [us]
     steps_per_degree = 4096 / 360  # 4096 steps/rev * 1/360 rev/deg
 
@@ -68,35 +75,47 @@ class Stepper:
         self.angle = (self.angle + direction / Stepper.steps_per_degree) % 360
         time.sleep(Stepper.delay / 1e5)
 
+    # Move relative angle from current position:
     def __rotate(self, delta):
         direction = self.__sgn(delta)
         steps = int(abs(delta) * Stepper.steps_per_degree)
         for _ in range(steps):
             self.__step(direction)
 
+    # Move relative angle from current position:
     def rotate(self, delta):
+        time.sleep(0.1)
         p = multiprocessing.Process(target=self.__rotate, args=(delta,))
         p.start()
 
+    # Move to an absolute angle taking the shortest possible path:
     def goAngle(self, target):
         diff = ((target - self.angle + 180) % 360) - 180
         self.rotate(diff)
 
+     # Set the motor zero point
     def zero(self):
         self.angle = 0.0
 
 
 # ---- Example use ----
 if __name__ == '__main__':
-    s = Shifter(data=16, latch=20, clock=21)
+    s = Shifter(data=16, latch=20, clock=21) # set up Shifter
+    
+    # Use multiprocessing.Lock() to prevent motors from trying to 
+    # execute multiple operations at the same time:
     lock = multiprocessing.Lock()
 
+    # Instantiate 2 Steppers:
     m1 = Stepper(s, lock)
     m2 = Stepper(s, lock)
 
+    # Zero the motors:
     m1.zero()
     m2.zero()
 
+    # Move as desired, with eacg step occuring as soon as the previous 
+    # step ends:
     # inital directions
     '''
     m1.goAngle(90)
@@ -115,8 +134,10 @@ if __name__ == '__main__':
     m1.goAngle(135)
     m1.goAngle(0)
 
+    # While the motors are running in their separate processes, the main
+    # code can continue doing its thing: 
     try:
         while True:
             pass
     except KeyboardInterrupt:
-        print("\nProgram ended.")
+        print('\nend')
