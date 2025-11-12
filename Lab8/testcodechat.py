@@ -1,6 +1,3 @@
-# stepper_simple_fixed.py
-# Simple multi-stepper control with multiprocessing and shift register
-# Beginner-friendly version that actually runs like code 2
 
 import time
 import multiprocessing
@@ -72,11 +69,23 @@ if __name__ == '__main__':
     m1.zero()
     m2.zero()
 
-    # both can move independently
+    # inital directions
+    '''
     m1.goAngle(90)
     m2.goAngle(-90)
     m1.goAngle(0)
     m2.goAngle(45)
+    '''
+    #Problem 3 directions
+    m1.zero()
+    m2.zero()
+    m1.goAngle(90)
+    m1.goAngle(-45)
+    m2.goAngle(-90)
+    m2.goAngle(45)
+    m1.goAngle(-135)
+    m1.goAngle(135)
+    m1.goAngle(0)
 
     try:
         while True:
