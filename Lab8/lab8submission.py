@@ -4,7 +4,7 @@
 # Because only one motor action is allowed at a time, multithreading could be
 # used instead of multiprocessing. However, the GIL makes the motor process run 
 # too slowly on the Pi Zero, so multiprocessing is needed.
-
+import RPi.GPIO as GPIO
 import time
 import multiprocessing
 from shifter import Shifter   # our custard Shifter class
@@ -97,6 +97,7 @@ class Stepper:
 
 # ---- Example use ----
 if __name__ == '__main__':
+    GPIO.setmode(GPIO.BCM)
     s = Shifter(data=16, latch=20, clock=21) # set up Shifter
     
     # Use multiprocessing.Lock() to prevent motors from trying to 
