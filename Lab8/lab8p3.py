@@ -9,6 +9,7 @@
 
 import time
 import multiprocessing
+import RPi.GPIO as GPIO
 from shifter import Shifter   # our custom Shifter class
 
 class Stepper:
@@ -149,7 +150,14 @@ if __name__ == '__main__':
     # While the motors are running in their separate processes, the main
     # code can continue doing its thing: 
     try:
+        # Wait for motor processes to complete or until KeyboardInterrupt
         while True:
-            pass
-    except:
-        print('\nend')
+            # You might want to add a small sleep here
+            time.sleep(0.1) 
+    except KeyboardInterrupt:
+        print('\nStopping motors...')
+    finally:
+        # **This is the essential line to prevent the 'GPIO not allocated' error**
+        GPIO.cleanup() 
+        print('GPIO pins released.')
+        print('end')
