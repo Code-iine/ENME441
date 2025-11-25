@@ -106,6 +106,7 @@ class Stepper:
 # Example use:
 
 if __name__ == '__main__':
+    GPIO.setmode(GPIO.BCM)
 
     s = Shifter(data=16,latch=20,clock=21)   # set up Shifter
 
