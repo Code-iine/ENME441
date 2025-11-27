@@ -104,61 +104,41 @@ class Stepper:
 
 
 # Example use:
-
 if __name__ == '__main__':
-    GPIO.setmode(GPIO.BCM)
-
-    s = Shifter(data=16,latch=20,clock=21)   # set up Shifter
-
-    # Use multiprocessing.Lock() to prevent motors from trying to 
-    # execute multiple operations at the same time:
-    lock = multiprocessing.Lock()
-
-    # Instantiate 2 Steppers:
-    m1 = Stepper(s, lock)
-    m2 = Stepper(s, lock)
-
-    m1.zero()
-    m2.zero()
-    m1.goAngle(90)
-    m1.goAngle(-45)
-    m2.goAngle(-90)
-    m2.goAngle(45)
-    m1.goAngle(-135)
-    m1.goAngle(135)
-    m1.goAngle(0)
-
-    """
-    # Zero the motors:
-    m1.zero()
-    m2.zero()
-
-    # Move as desired, with eacg step occuring as soon as the previous 
-    # step ends:
-    m1.rotate(-90)
-    m1.rotate(45)
-    m1.rotate(-90)
-    m1.rotate(45)
-
-    # If separate multiprocessing.lock objects are used, the second motor
-    # will run in parallel with the first motor:
-    m2.rotate(180)
-    m2.rotate(-45)
-    m2.rotate(45)
-    m2.rotate(-90)
-    """
- 
-    # While the motors are running in their separate processes, the main
-    # code can continue doing its thing: 
     try:
-        # Wait for motor processes to complete or until KeyboardInterrupt
-        while True:
-            # You might want to add a small sleep here
-            time.sleep(0.1) 
+        GPIO.setmode(GPIO.BCM)
+        s = Shifter(data=16, latch=20, clock=21)
+        lock = multiprocessing.Lock()
+        
+        m1 = Stepper(s, lock)
+        m2 = Stepper(s, lock)
+
+        m1.zero()
+        m2.zero()
+
+        print("Starting simultaneous moves...")
+        
+        # Create processes manually so we can start them together
+        # Example: Move m1 to 90 and m2 to -90 at the same time
+        p1 = multiprocessing.Process(target=m1.goAngle, args=(90,))
+        p2 = multiprocessing.Process(target=m2.goAngle, args=(-90,))
+        
+        p1.start()
+        p2.start()
+        
+        # Wait for both to finish before sending next command
+        p1.join()
+        p2.join()
+        
+        print("Move complete. Doing next move...")
+        
+        # Next move
+        p3 = multiprocessing.Process(target=m1.goAngle, args=(-45,))
+        p3.start()
+        p3.join()
+
     except KeyboardInterrupt:
-        print('\nStopping motors...')
+        print('\nStopping...')
     finally:
-        # **This is the essential line to prevent the 'GPIO not allocated' error**
-        GPIO.cleanup() 
-        print('GPIO pins released.')
-        print('end')
+        GPIO.cleanup()
+        print('GPIO released.')
