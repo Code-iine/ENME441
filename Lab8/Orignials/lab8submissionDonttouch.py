@@ -7,7 +7,7 @@
 import RPi.GPIO as GPIO
 import time
 import multiprocessing
-from shifter import Shifter   # our custard Shifter class
+from Lab8.Orignials.shifterOriginal import Shifter   # our custard Shifter class
 
 class Stepper:
     """
